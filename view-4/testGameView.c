@@ -494,6 +494,112 @@ int main(void)
 		printf("Test passed!\n");
 	}
 
+	/* Custom Tests*/
+
+	{///////////////////////////////////////////////////////////////////
+	
+		printf("Testing getreachable by dracula\n");
+		
+		{
+			printf("\t testing port city\n");
+
+			char *trail = "GLS.... SGE.... HGE.... MGE.... DRO.V..";
+		
+			Message messages[32] = {};
+			GameView gv = GvNew(trail, messages);
+			assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == ROME);
+
+			int numLocs = 0, round = 0;
+			PlaceId *reachable = GvGetReachable(gv, PLAYER_DRACULA, round, ROME, &numLocs);
+			
+			sortPlaces(reachable, numLocs);
+			assert(numLocs == 5);
+			assert(reachable[0] == BARI);
+			assert(reachable[1] == FLORENCE);
+			assert(reachable[2] == NAPLES);
+			assert(reachable[3] == ROME);
+			assert(reachable[4] == TYRRHENIAN_SEA);
+			
+			free(reachable);
+			GvFree(gv);
+		}
+		
+		{
+			printf("\t testing city next to hospital and rail only connection\n");
+
+			char *trail = "GLS.... SGE.... HGE.... MGE.... DSZ.V..";
+		
+			Message messages[32] = {};
+			GameView gv = GvNew(trail, messages);
+			assert(GvGetPlayerLocation(gv, PLAYER_DRACULA) == SZEGED);
+
+			int numLocs = 0, round = 0;
+			PlaceId *reachable = GvGetReachable(gv, PLAYER_DRACULA, round, SZEGED, &numLocs);
+			
+			sortPlaces(reachable, numLocs);
+			assert(numLocs == 5);
+			assert(reachable[0] == BELGRADE);
+			assert(reachable[1] == BUDAPEST);
+			assert(reachable[2] == KLAUSENBURG);
+			assert(reachable[3] == SZEGED);
+			assert(reachable[4] == ZAGREB);
+			
+			free(reachable);
+			GvFree(gv);
+		}
+		
+		printf("Test passed!\n");
+	}
+
+	{///////////////////////////////////////////////////////////////////
+	
+		printf("Testing hunter's health is restored after dying\n");
+		
+			char *trail =
+			"GLS.... SGE.... HGE.... MGE.... DST.V.. "
+			"GCA.... SGE.... HGE.... MGE.... DC?T... "
+			"GGR.... SGE.... HGE.... MGE.... DC?T... "
+			"GAL.... SGE.... HGE.... MGE.... DD3T... "
+			"GSR.... SGE.... HGE.... MGE.... DHIT... "
+			"GSN.... SGE.... HGE.... MGE.... DC?T... "
+			"GMA.... SSTTTTD HGE.... MGE.... DC?T... "
+			"GMA.... SSZ....";
+	
+		Message messages[32] = {};
+		GameView gv = GvNew(trail, messages);
+		assert(GvGetHealth(gv, PLAYER_DR_SEWARD) == GAME_START_HUNTER_LIFE_POINTS);
+		
+		GvFree(gv);
+		
+		printf("Test passed!\n");
+	}
+
+	{///////////////////////////////////////////////////////////////////
+	
+		printf("Testing 6 traps are allowed on \n");
+		
+			char *trail =
+			"GCA.... SGE.... HGE.... MGE.... DMRT... "
+			"GLS.... SGE.... HGE.... MGE.... DC?T... "
+			"GCA.... SGE.... HGE.... MGE.... DPAT... "
+			"GGR.... SGE.... HGE.... MGE.... DSTT... "
+			"GAL.... SGE.... HGE.... MGE.... DMUT... "
+			"GSR.... SGE.... HGE.... MGE.... DVIT... "
+			"GSN.... SGE.... HGE.... MGE.... DPRT...";
+	
+		Message messages[32] = {};
+		GameView gv = GvNew(trail, messages);
+		int numLocs = 0; 
+		PlaceId *locs = GvGetTrapLocations(gv, &numLocs);
+		sortPlaces(locs, numLocs);
+		assert(numLocs == 6);
+
+		free(locs);
+		GvFree(gv);
+		
+		printf("Test passed!\n");
+	}
+
 	return EXIT_SUCCESS;
 }
 

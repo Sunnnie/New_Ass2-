@@ -21,6 +21,8 @@
 #include "Game.h"
 #include "Places.h"
 // add your own #includes here
+#include "Map.h"
+#include "Queue.h"
 
 typedef struct gameView *GameView;
 
@@ -256,4 +258,19 @@ PlaceId *GvGetReachableByType(GameView gv, Player player, Round round,
 
 // TODO
 
+PlaceId *copyPlaceArray(PlaceId *array, int size);
+PlaceId getPlaceFromMove(char *move);
+Player playerFromChar(char c);
+void addPlace(PlaceId *places, int *size, PlaceId place);
+void removePlace(PlaceId *places, int *size, PlaceId place);
+PlaceId getLocationFromMove(GameView gv, PlaceId move, int trailLocation);
+bool validTransport(TransportType type, bool road, bool rail, bool boat);
+int maxRailDist(Player player, Round round);
+
+
 #endif // !defined (FOD__GAME_VIEW_H_)
+
+
+
+
+
