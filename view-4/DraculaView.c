@@ -374,7 +374,6 @@ PlaceId *DvWhereCanTheyGoByType(DraculaView dv, Player player,
 		}  else {
 			reachable_type = GvGetReachableByType(dv->gv, player, next_move, GvGetPlayerLocation(dv->gv, player), road, rail, boat, numReturnedLocs); 
 		}
-	}
-	
+	}	
 	return reachable_type;
 }
