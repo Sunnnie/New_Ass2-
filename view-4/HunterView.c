@@ -20,11 +20,13 @@
 #include "Map.h"
 #include "Places.h"
 // add your own #includes here
+#include <limits.h>
 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
 struct hunterView {
-	// TODO: ADD FIELDS HERE
+	GameView view;
+	int encounter_Dracula;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -106,9 +108,9 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
                              int *pathLength)
 {
-	*pathLength = 0;
-	PlaceId current_place = hv->view->trail[0];
-	int vertices = map->nV;
+    *pathLength = 0;
+	PlaceId current_place = HvGetPlayerLocation(hv, hunter);
+	int vertices = MapNumPlaces(hv->view->map);
 	//Using Dijkstra's Algorithm to find Single Source Shortest Path
 	//Distance Array
 	int dist[vertices];
@@ -122,14 +124,14 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 	dist[current_place] = 0;
 
 	for (int j = 0; j < (vertices - 1); j++) {
-		int min_distance_vertex = minDistance(dist, vSet); 
+		int min_distance_vertex = minDistance(dist, vSet, vertices); 
 
 		vSet[min_distance_vertex] = true;
 
 		for (int k = 0; k < vertices; k++) {
-			if (!vSet[k] && map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
-				if ((dist[min_distance_vertex] + ) < dist[k]) {
-					dist[v] = dist[min_distance_vertex] + map[min_distance_vertex][k]; 
+			if (!vSet[k] && hv->view->Map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
+				if ((dist[min_distance_vertex] + hv->view->Map[min_distance_vertex][k]) < dist[k]) {
+					dist[j] = dist[min_distance_vertex] + hv->view->Map[min_distance_vertex][k]; 
 				}
 
 			}
@@ -174,15 +176,15 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
                           int *numReturnedLocs)
 {
 	PlaceId current_player_location = HvGetPlayerLocation(hv, player);
-	int num_locations = map->nV;
+	//int num_locations = hv->view->Map->nV;
 	//Dynamically Allocated Array to store possible locations
-	PossibleLocations = malloc(num_locations*sizeof(PlaceId));
+	PlaceId *PossibleLocations = malloc(NUM_REAL_PLACES*sizeof(PlaceId));
 	assert(PossibleLocations != NULL);
 	//Insert Player's Current Location
 	PossibleLocations[0] = current_player_location; 
 
 	//If Player Hasn't Made a Move Yet
-	if (player->moveHistSize == 0) {
+	if (hv->view->playerStats[hv->view->player]->moveHistSize == 0) {
 		*numReturnedLocs = 0; 
 		return NULL;
 	}
@@ -190,17 +192,17 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
 	if (player != PLAYER_DRACULA) {
 		//Find available locations
 		//Breadth First Search Through All Possibilities
-		PossibleLocations = FindPossibleLocations(hv, player, true, true, true, numReturnedLocs);
+		PossibleLocations = HvFindPossibleLocations(hv, player, true, true, true, numReturnedLocs);
 
 	}
 	//If Given Player is Dracula
 	if (player == PLAYER_DRACULA) {
 		//If Dracula's Current Location is not Revealed
-		if (current_player_location == NULL) {
+		if (current_player_location == NOWHERE) {
 			*numReturnedLocs = 0;
 			return NULL;
 		} else {
-			PossibleLocations = FindPossibleLocations(hv, player, true, false, true, numReturnedLocs); 
+			PossibleLocations = HvFindPossibleLocations(hv, player, true, false, true, numReturnedLocs); 
 		}
 	}
 	
@@ -212,15 +214,15 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
                                 int *numReturnedLocs)
 {
 	PlaceId current_player_location = HvGetPlayerLocation(hv, player);
-	int num_locations = map->nV;
+	//int num_locations = hv->view->Map->nV;
 	//Dynamically Allocated Array to store possible locations
-	PossibleLocations = malloc(num_locations*sizeof(PlaceId));
+	PlaceId *PossibleLocations = malloc(NUM_REAL_PLACES*sizeof(PlaceId));
 	assert(PossibleLocations != NULL);
 	//Insert Player's Current Location
 	PossibleLocations[0] = current_player_location; 
 
 	//If Player Hasn't Made a Move Yet
-	if (player->moveHistSize == 0) {
+	if (hv->view->playerStats[hv->view->player]->moveHistSize == 0) {
 		*numReturnedLocs = 0; 
 	}
 	//If Given Player is a Hunter
@@ -232,7 +234,7 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 	//If Given Player is Dracula
 	if (player == PLAYER_DRACULA) {
 		//If Dracula's Current Location is not Revealed
-		if (current_player_location == NULL) {
+		if (current_player_location == NOWHERE) {
 			*numReturnedLocs = 0;
 			return NULL;
 		} else {
@@ -248,56 +250,56 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
 								   bool road, bool rail, bool boat,
 								   int *numReturnedLocs) {
-	int num_vertices = map->nV;
-	int num_edges = map->nE; 
+	//int num_vertices = hv->view->Map->nV;
+	//int num_edges = hv->view->Map->nE; 
 	//Dynamically Allocated Array to store possible locations
-	PossibleLocations = malloc(num_locations*sizeof(PlaceId));
+	PlaceId *PossibleLocations = malloc(NUM_REAL_PLACES*sizeof(PlaceId));
 	assert(PossibleLocations != NULL);
 	int possible_locations_array_index = 1;
 	PlaceId current_player_location = HvGetPlayerLocation(hv, player);
 	PossibleLocations[0] = current_player_location;
 	//Get the Connections List for the Player
-	ConnList connection_list_player =  MapGetConnections(map, current_player_location); 
+	ConnList connection_list_player =  MapGetConnections(hv->view->Map, current_player_location); 
 	ConnList curr = connection_list_player;
 	while (curr != NULL) {
 		//If Rail (Dracula Can't Travel By Rail)
 		if ((curr->type == RAIL) && (rail == true) && (player != PLAYER_DRACULA)) {
 			//Check if can go by Rail on this Segment
-			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, true, false) > 0) {
+			if (HvFindConnectionSingleRound(hv, current_player_location, curr->p, false, true, false) > 0) {
 				PossibleLocations[possible_locations_array_index] = curr->p;
 			}
-			int *numReturnedLocs++;
+			*numReturnedLocs = *numReturnedLocs + 1;
 		}
 		//If Road
 		if ((curr->type == ROAD) && (road == true)) {
 			//Check if can go by Road on this Segment
-			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, true, false, false) > 0) {
+			if (HvFindConnectionSingleRound(hv, current_player_location, curr->p, true, false, false) > 0) {
 				//Check if not Hospital of St Joseph & St Mary if Dracula
 				if ((player != PLAYER_DRACULA) || ((player == PLAYER_DRACULA) && (curr->p != ST_JOSEPH_AND_ST_MARY))) {
 					PossibleLocations[possible_locations_array_index] = curr->p;
 				}
 			}
-			int *numReturnedLocs++;
+			*numReturnedLocs = *numReturnedLocs + 1;
 		}
 		//If Boat 
 		if ((curr->type == BOAT) && (boat == true)) {
 			//Check if can go by Boat on this Segment
-			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, false, true) > 0) {
+			if (HvFindConnectionSingleRound(hv, current_player_location, curr->p, false, false, true) > 0) {
 				PossibleLocations[possible_locations_array_index] = curr->p;
 			}
-			int *numReturnedLocs++;
+			*numReturnedLocs = *numReturnedLocs + 1;
 		}
 		curr = curr->next;
 	}
 	return PossibleLocations; 
 }
 
-int minDistance(int dist[], bool vSet[]) { 
+int minDistance(int dist[], bool vSet[], int vertices) { 
     // Initialize min value 
     int min = INT_MAX;
 	int min_index; 
   
-    for (int v = 0; v < V; v++) {
+    for (int v = 0; v < vertices; v++) {
         if ((vSet[v] == false) && (dist[v] <= min)) {
             min = dist[v];
 			min_index = v; 
@@ -308,8 +310,8 @@ int minDistance(int dist[], bool vSet[]) {
 
 //Find out Whether Allowed to Travel Between Two Nodes for a Single Round
 int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool road, bool rail, bool boat) {
-	ConnList curr = map->connections[start];
-	ConnList destination = map->connections[end]; 
+	ConnList curr = hv->view->Map->connections[start];
+	ConnList destination = hv->view->Map->connections[end]; 
 	Player playerId = hv->view->player; 
 	Round currentRound = hv->view->round; 
 	int distanceRail;
@@ -327,15 +329,15 @@ int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool 
 			}
 			//If allowed to travel by rail on 2 segments
 			if (distanceRail == 2) {
-				ConnList middle_segment = map->connections[curr->p];
-				if (map->connections[middle_segment->p] == destination) {
+				ConnList middle_segment = hv->view->Map->connections[curr->p];
+				if (hv->view->Map->connections[middle_segment->p] == destination) {
 					numPossibleLocations++;
 				}  
 			}
 			//If allowed to travel by rail on 3 segments
 			if (distanceRail == 3) {
-				ConnList first_middle_segment = map->connections[curr->p]; 
-				ConnList curr_second_middle_segment = map->connections[0]; 
+				ConnList first_middle_segment = hv->view->Map->connections[curr->p]; 
+				ConnList curr_second_middle_segment = hv->view->Map->connections[first_middle_segment->p]; 
 				while (curr_second_middle_segment != NULL) {
 					if (curr_second_middle_segment == destination) {
 						numPossibleLocations++; 
