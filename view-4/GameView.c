@@ -62,7 +62,8 @@ void handlePastPlays(char *pastPlays, GameView gv);
 void updateHealth(GameView gv, int healthChange, Player player);
 void dfsReachable(GameView gv, Queue q, PlaceId p, bool road, bool rail, bool boat, 
 				int *seen, int dist, int maxDist, bool isDrac);
-
+int maxRailDist (Player player, Round round);
+PlaceId getLocationFromMove(GameView gv, PlaceId move, int trailLocation);
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
 
@@ -563,4 +564,9 @@ void dfsReachable(GameView gv, Queue q, PlaceId p, bool road, bool rail, bool bo
 		}
 		connection = connection->next;
 	}
+}
+
+PlaceId *trail_location(GameView gv) 
+{
+	return gv->trail; 
 }
