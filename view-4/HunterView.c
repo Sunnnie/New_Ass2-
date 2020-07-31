@@ -37,7 +37,7 @@ HunterView HvNew(char *pastPlays, Message messages[])
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
 		exit(EXIT_FAILURE);
 	}
-     new->view = GvNew(pastPlays, messages);
+    new->view = GvNew(pastPlays, messages);
     new->encounter_Dracula = 0;
     for(int i = 0; pastPlays[i] != '\0'; i++){
         if(pastPlays[i] == 'V') new->encounter_Dracula = 1;
@@ -48,7 +48,6 @@ HunterView HvNew(char *pastPlays, Message messages[])
 
 void HvFree(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	free(hv);
 }
 
@@ -92,8 +91,8 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
 	// if the Dracula's location is known by hunter
 
-	for(int i = *round; i > 0; i--){
-		if(hv -> encounter_Dracula == 1){
+	for (int i = *round; i > 0; i--) {
+		if (hv -> encounter_Dracula == 1) {
 			PlaceId id = GvGetPlayerLocation(hv -> view, HvGetPlayer(hv));
 			return id;
 			break;
@@ -145,11 +144,11 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 {
 	Player player = HvGetPlayer(hv);
-	if(HvGetPlayerLocation(hv, player) == NOWHERE){
+	if (HvGetPlayerLocation(hv, player) == NOWHERE) {
 	    *numReturnedLocs = 0;
 	    return NULL;
 	}
-	else{
+	else {
 	    return GvGetReachable(hv -> view, player, HvGetRound(hv),
                         HvGetPlayerLocation(hv, player), numReturnedLocs);
 	
@@ -160,11 +159,11 @@ PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
                              bool boat, int *numReturnedLocs)
 {
 	Player player = HvGetPlayer(hv);
-	if(HvGetPlayerLocation(hv, player) == NOWHERE){
+	if (HvGetPlayerLocation(hv, player) == NOWHERE) {
 	    *numReturnedLocs = 0;
 	    return NULL;
 	}
-	else{
+	else {
 	    return GvGetReachableByType(hv -> view, player, HvGetRound(hv),
                         HvGetPlayerLocation(hv, player), road, rail, boat, numReturnedLocs);
 	
