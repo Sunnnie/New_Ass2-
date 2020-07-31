@@ -240,8 +240,8 @@ PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
 	ConnList connection_list_player =  MapGetConnections(map, current_player_location); 
 	ConnList curr = connection_list_player;
 	while (curr != NULL) {
-		//If Rail
-		if ((curr->type == RAIL) && (rail == true)) {
+		//If Rail (Dracula Can't Travel By Rail)
+		if ((curr->type == RAIL) && (rail == true) && (player != PLAYER_DRACULA)) {
 			//Check if can go by Rail on this Segment
 			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, true, false) > 0) {
 				PossibleLocations[possible_locations_array_index] = curr->p;
@@ -252,7 +252,10 @@ PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
 		if ((curr->type == ROAD) && (road == true)) {
 			//Check if can go by Road on this Segment
 			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, true, false, false) > 0) {
-				PossibleLocations[possible_locations_array_index] = curr->p;
+				//Check if not Hospital of St Joseph & St Mary if Dracula
+				if ((player != PLAYER_DRACULA) || ((player == PLAYER_DRACULA) && (curr->p != ST_JOSEPH_AND_ST_MARY))) {
+					PossibleLocations[possible_locations_array_index] = curr->p;
+				}
 			}
 			int *numReturnedLocs++;
 		}
