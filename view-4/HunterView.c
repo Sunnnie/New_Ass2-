@@ -225,7 +225,7 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
 
-PlaceId *FindPossibleLocations(HunterView hv, Player player,
+PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
 								   bool road, bool rail, bool boat,
 								   int *numReturnedLocs) {
 	int num_vertices = map->nV;
@@ -233,8 +233,9 @@ PlaceId *FindPossibleLocations(HunterView hv, Player player,
 	//Dynamically Allocated Array to store possible locations
 	PossibleLocations = malloc(num_locations*sizeof(PlaceId));
 	assert(PossibleLocations != NULL);
-	int possible_locations_array_index = 0;
+	int possible_locations_array_index = 1;
 	PlaceId current_player_location = HvGetPlayerLocation(hv, player);
+	PossibleLocations[0] = current_player_location;
 	//Get the Connections List for the Player
 	ConnList connection_list_player =  MapGetConnections(map, current_player_location); 
 	ConnList curr = connection_list_player;
@@ -242,7 +243,7 @@ PlaceId *FindPossibleLocations(HunterView hv, Player player,
 		//If Rail
 		if ((curr->type == RAIL) && (rail == true)) {
 			//Check if can go by Rail on this Segment
-			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, true, false)) {
+			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, true, false) > 0) {
 				PossibleLocations[possible_locations_array_index] = curr->p;
 			}
 			int *numReturnedLocs++;
@@ -250,7 +251,7 @@ PlaceId *FindPossibleLocations(HunterView hv, Player player,
 		//If Road
 		if ((curr->type == ROAD) && (road == true)) {
 			//Check if can go by Road on this Segment
-			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, true, false, false)) {
+			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, true, false, false) > 0) {
 				PossibleLocations[possible_locations_array_index] = curr->p;
 			}
 			int *numReturnedLocs++;
@@ -258,7 +259,7 @@ PlaceId *FindPossibleLocations(HunterView hv, Player player,
 		//If Boat 
 		if ((curr->type == BOAT) && (boat == true)) {
 			//Check if can go by Boat on this Segment
-			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, false, true)) {
+			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, false, true) > 0) {
 				PossibleLocations[possible_locations_array_index] = curr->p;
 			}
 			int *numReturnedLocs++;
