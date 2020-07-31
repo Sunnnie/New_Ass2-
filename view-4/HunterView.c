@@ -110,8 +110,10 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 {
     *pathLength = 0;
 	PlaceId current_place = HvGetPlayerLocation(hv, hunter);
-	int vertices = MapNumPlaces(hv->view->map);
+	//Map view_map = GvGetMap(hv->view);
+	int vertices = NUM_REAL_PLACES;
 	//Using Dijkstra's Algorithm to find Single Source Shortest Path
+	//From Lecture Notes & Lab 5
 	//Distance Array
 	int dist[vertices];
 	bool vSet[vertices];
@@ -127,15 +129,15 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 		int min_distance_vertex = minDistance(dist, vSet, vertices); 
 
 		vSet[min_distance_vertex] = true;
-
+		/*
 		for (int k = 0; k < vertices; k++) {
-			if (!vSet[k] && hv->view->Map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
-				if ((dist[min_distance_vertex] + hv->view->Map[min_distance_vertex][k]) < dist[k]) {
-					dist[j] = dist[min_distance_vertex] + hv->view->Map[min_distance_vertex][k]; 
+			if (!vSet[k] && view_map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
+				if ((dist[min_distance_vertex] + view_map[min_distance_vertex][k]) < dist[k]) {
+					dist[j] = dist[min_distance_vertex] + view_map[min_distance_vertex][k]; 
 				}
 
 			}
-		}
+		}*/
 	}
 	return NULL;
 }
@@ -184,7 +186,9 @@ PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
 	PossibleLocations[0] = current_player_location; 
 
 	//If Player Hasn't Made a Move Yet
-	if (hv->view->playerStats[hv->view->player]->moveHistSize == 0) {
+	int *numPlayerMoves = 0;
+	PlaceId *last_move = GvGetMoveHistory(hv->view, player, numPlayerMoves, false);
+	if (last_move == 0) {
 		*numReturnedLocs = 0; 
 		return NULL;
 	}
@@ -222,7 +226,9 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 	PossibleLocations[0] = current_player_location; 
 
 	//If Player Hasn't Made a Move Yet
-	if (hv->view->playerStats[hv->view->player]->moveHistSize == 0) {
+	int *numPlayerMoves = 0;
+	PlaceId *last_move = GvGetMoveHistory(hv->view, player, numPlayerMoves, false);
+	if (last_move == 0) {
 		*numReturnedLocs = 0; 
 	}
 	//If Given Player is a Hunter
@@ -259,7 +265,8 @@ PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
 	PlaceId current_player_location = HvGetPlayerLocation(hv, player);
 	PossibleLocations[0] = current_player_location;
 	//Get the Connections List for the Player
-	ConnList connection_list_player =  MapGetConnections(hv->view->Map, current_player_location); 
+	Map view_map = GvGetMap(hv->view);
+	ConnList connection_list_player =  MapGetConnections(view_map, current_player_location); 
 	ConnList curr = connection_list_player;
 	while (curr != NULL) {
 		//If Rail (Dracula Can't Travel By Rail)
@@ -310,10 +317,11 @@ int minDistance(int dist[], bool vSet[], int vertices) {
 
 //Find out Whether Allowed to Travel Between Two Nodes for a Single Round
 int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool road, bool rail, bool boat) {
-	ConnList curr = hv->view->Map->connections[start];
-	ConnList destination = hv->view->Map->connections[end]; 
-	Player playerId = hv->view->player; 
-	Round currentRound = hv->view->round; 
+	Map view_map = GvGetMap(hv->view);
+	ConnList curr =  MapGetConnections(view_map, start); 
+	ConnList destination =  MapGetConnections(view_map, end); 
+	Player playerId = GvGetPlayer(hv->view); 
+	Round currentRound = GvGetRound(hv->view); 
 	int distanceRail;
 	int numPossibleLocations = 0; 
 	while (curr != NULL) {
@@ -329,15 +337,15 @@ int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool 
 			}
 			//If allowed to travel by rail on 2 segments
 			if (distanceRail == 2) {
-				ConnList middle_segment = hv->view->Map->connections[curr->p];
-				if (hv->view->Map->connections[middle_segment->p] == destination) {
+				ConnList middle_segment = MapGetConnections(view_map, curr->p);
+				if (MapGetConnections(view_map, middle_segment->p) == destination) {
 					numPossibleLocations++;
 				}  
 			}
 			//If allowed to travel by rail on 3 segments
 			if (distanceRail == 3) {
-				ConnList first_middle_segment = hv->view->Map->connections[curr->p]; 
-				ConnList curr_second_middle_segment = hv->view->Map->connections[first_middle_segment->p]; 
+				ConnList first_middle_segment =  MapGetConnections(view_map, curr->p);
+				ConnList curr_second_middle_segment = MapGetConnections(view_map, first_middle_segment->p); 
 				while (curr_second_middle_segment != NULL) {
 					if (curr_second_middle_segment == destination) {
 						numPossibleLocations++; 
