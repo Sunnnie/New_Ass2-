@@ -102,27 +102,15 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 			}
 		}
 	} else {
-		for (int i=0; i <= TRAIL_SIZE; i++) {
-			if ((trail[i] != NOWHERE) && (trail[i] != CITY_UNKNOWN) && (trail[i] != SEA_UNKNOWN) && ((id == CITY_UNKNOWN) || (id == SEA_UNKNOWN))) {
-				//*round = i;
-				//return trail[i];
+		for (int i=TRAIL_SIZE - 1; i >= 0; i--) {
+			if ((trail[i] != NOWHERE) && (trail[i] != CITY_UNKNOWN) && (trail[i] != SEA_UNKNOWN)) {
+				*round = i;
+				return trail[i];
 			}
 		}
 	}
 	return NOWHERE;
-	/*
-	// if the Dracula's location is known by hunter
-	for (int i = *round; i > 0; i--) {
-		if ((hv->encounter_Dracula == 1) || (HvGetPlayerLocation(hv, PLAYER_DRACULA) != NOWHERE)) {
-			PlaceId id = GvGetPlayerLocation(hv -> view, HvGetPlayer(hv));
-			*round = i;
-			return id;
-			break;
-		}
-	}
-
-	// if the Dracula's location is unknown
-	return NOWHERE;*/
+	
 
 	
 	
@@ -133,8 +121,8 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 {
     *pathLength = 0;
 	PlaceId current_place = HvGetPlayerLocation(hv, hunter);
-	//Map view_map = GvGetMap(hv->view);
-	int vertices = NUM_REAL_PLACES;
+	Map view_map = GvGetMap(hv->view);
+	int vertices = MapNumPlaces(view_map);
 	//Using Dijkstra's Algorithm to find Single Source Shortest Path
 	//From Lecture Notes & Lab 5
 	//Distance Array
@@ -152,15 +140,18 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 		int min_distance_vertex = minDistance(dist, vSet, vertices); 
 
 		vSet[min_distance_vertex] = true;
-		/*
+		*pathLength = *pathLength + 1;
+		
 		for (int k = 0; k < vertices; k++) {
-			if (!vSet[k] && view_map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
+			
+			/*if (!vSet[k] && view_map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
 				if ((dist[min_distance_vertex] + view_map[min_distance_vertex][k]) < dist[k]) {
 					dist[j] = dist[min_distance_vertex] + view_map[min_distance_vertex][k]; 
 				}
 
-			}
-		}*/
+			}*/
+			
+		}
 	}
 	return NULL;
 }
