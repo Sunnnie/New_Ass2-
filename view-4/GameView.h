@@ -267,6 +267,7 @@ PlaceId getLocationFromMove(GameView gv, PlaceId move, int trailLocation);
 bool validTransport(TransportType type, bool road, bool rail, bool boat);
 int maxRailDist(Player player, Round round);
 PlaceId *trail_location(GameView gv); 
+Map GvGetMap(GameView gv);
 
 #endif // !defined (FOD__GAME_VIEW_H_)
 

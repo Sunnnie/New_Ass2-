@@ -91,18 +91,41 @@ PlaceId HvGetVampireLocation(HunterView hv)
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
+	PlaceId id = HvGetPlayerLocation(hv, PLAYER_DRACULA);
+	PlaceId *trail = trail_location(hv->view);
+	if ((id != NOWHERE) && (id != CITY_UNKNOWN) && (id != SEA_UNKNOWN)) {
+		for (int i = 0; i <= TRAIL_SIZE; i++) {
+			if (trail[i] == id) {
+				*round = i; 
+				return id;
+				break;
+			}
+		}
+	} else {
+		for (int i=0; i <= TRAIL_SIZE; i++) {
+			if ((trail[i] != NOWHERE) && (trail[i] != CITY_UNKNOWN) && (trail[i] != SEA_UNKNOWN) && ((id == CITY_UNKNOWN) || (id == SEA_UNKNOWN))) {
+				//*round = i;
+				//return trail[i];
+			}
+		}
+	}
+	return NOWHERE;
+	/*
 	// if the Dracula's location is known by hunter
-
 	for (int i = *round; i > 0; i--) {
-		if (hv -> encounter_Dracula == 1) {
+		if ((hv->encounter_Dracula == 1) || (HvGetPlayerLocation(hv, PLAYER_DRACULA) != NOWHERE)) {
 			PlaceId id = GvGetPlayerLocation(hv -> view, HvGetPlayer(hv));
+			*round = i;
 			return id;
 			break;
 		}
 	}
-	// if the Dracula's location is unknown
 
-	return NOWHERE;
+	// if the Dracula's location is unknown
+	return NOWHERE;*/
+
+	
+	
 }
 
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
@@ -301,6 +324,7 @@ PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
 	return PossibleLocations; 
 }
 
+//From Lecture Notes & Lab 7
 int minDistance(int dist[], bool vSet[], int vertices) { 
     // Initialize min value 
     int min = INT_MAX;

@@ -214,6 +214,12 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
+PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
+								   bool road, bool rail, bool boat,
+								   int *numReturnedLocs);
+int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool road, bool rail, bool boat);
+int minDistance(int dist[], bool vSet[], int vertices);
+int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool road, bool rail, bool boat);
 
 // TODO
 

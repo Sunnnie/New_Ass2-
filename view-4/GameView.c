@@ -570,3 +570,7 @@ PlaceId *trail_location(GameView gv)
 {
 	return gv->trail; 
 }
+
+Map GvGetMap(GameView gv) {
+	return(gv->map);
+}
