@@ -2,5 +2,5 @@
 > group members: 
 > Ethan Marlow; 
 > Gonzalo Ovalles Gomez; 
-> Weilin(Sunny) Sun; 
+> Weilin(Sunny) Sun-Sunnnie-z5261245;  
 > Zhaocheng(Barry) Li
