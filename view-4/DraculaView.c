@@ -202,7 +202,7 @@ PlaceId *DvGetValidMoves(DraculaView dv, int *numReturnedMoves)
 PlaceId *DvWhereCanIGo(DraculaView dv, int *numReturnedLocs)
 {
     PlaceId *vaild_locations = malloc(NUM_REAL_PLACES*sizeof(PlaceId));
-
+	(*numReturnedLocs) = 0;
 	if(GvGetRound(dv->gv) == 0) {
 	    for (int a = 0; a < NUM_REAL_PLACES; a++) {
 	        if (a != ST_JOSEPH_AND_ST_MARY) {
@@ -260,7 +260,7 @@ PlaceId *DvWhereCanIGoByType(DraculaView dv, bool road, bool boat,
                              int *numReturnedLocs)
 {
     PlaceId *vaild_locations = malloc(NUM_REAL_PLACES*sizeof(PlaceId));
-
+	(*numReturnedLocs) = 0;
 	if(GvGetRound(dv->gv) == 0) {
 	    for (int a = 0; a < NUM_REAL_PLACES; a++) {
 	        if (a != ST_JOSEPH_AND_ST_MARY) {
