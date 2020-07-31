@@ -285,9 +285,23 @@ int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool 
 		if (curr->type == RAIL && rail == true) {
 			//Check allowed distance for rail in current round
 			distanceRail = (playerId + currentRound) % 4; 
-			//If allowed to travel by rail 
-			if (distanceRail > 0) {
-
+			//If allowed to travel by rail on 1 segment 
+			if (distanceRail == 1) {
+				if (curr->p == end) {
+					numPossibleLocations++; 
+				}
+			}
+			//If allowed to travel by rail on 2 segments
+			if (distanceRail == 2) {
+				ConnList middle_segment = map->connections[curr->p];
+				if (map->connections[middle_segment->p] == destination) {
+					numPossibleLocations++;
+				}  
+			}
+			//If allowed to travel by rail on 3 segments
+			if (distanceRail == 3) {
+				ConnList first_middle_segment = map->connections[curr->p]; 
+				ConnList curr_second_middle_segment = map->connections[0]
 			}
 		}
 		//If Sea
