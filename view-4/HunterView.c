@@ -301,7 +301,8 @@ int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool 
 			//If allowed to travel by rail on 3 segments
 			if (distanceRail == 3) {
 				ConnList first_middle_segment = map->connections[curr->p]; 
-				ConnList curr_second_middle_segment = map->connections[0]
+				ConnList curr_second_middle_segment = map->connections[0]; 
+				
 			}
 		}
 		//If Sea
