@@ -122,7 +122,7 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 
 		for (int k = 0; k < vertices; k++) {
 			if (!vSet[k] && map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
-				if ((dist[min_distance_vertex] + map[min_distance_vertex][k]) < dist[k]) {
+				if ((dist[min_distance_vertex] + ) < dist[k]) {
 					dist[v] = dist[min_distance_vertex] + map[min_distance_vertex][k]; 
 				}
 
@@ -207,7 +207,7 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 	if (player != PLAYER_DRACULA) {
 		//Find available locations
 		//Breadth First Search Through All Possibilities
-		PossibleLocations = FindPossibleLocations(hv, player, road, rail, boat, numReturnedLocs);
+		PossibleLocations = HvFindPossibleLocations(hv, player, road, rail, boat, numReturnedLocs);
 	}
 	//If Given Player is Dracula
 	if (player == PLAYER_DRACULA) {
@@ -216,7 +216,7 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 			*numReturnedLocs = 0;
 			return NULL;
 		} else {
-			PossibleLocations = FindPossibleLocations(hv, player, road, rail, boat, numReturnedLocs); 
+			PossibleLocations = HvFindPossibleLocations(hv, player, road, rail, boat, numReturnedLocs); 
 		}
 	}
 	return PossibleLocations;
@@ -224,6 +224,7 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
+
 PlaceId *FindPossibleLocations(HunterView hv, Player player,
 								   bool road, bool rail, bool boat,
 								   int *numReturnedLocs) {
@@ -240,17 +241,26 @@ PlaceId *FindPossibleLocations(HunterView hv, Player player,
 	while (curr != NULL) {
 		//If Rail
 		if ((curr->type == RAIL) && (rail == true)) {
-			PossibleLocations[possible_locations_array_index] = curr->p;
+			//Check if can go by Rail on this Segment
+			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, true, false)) {
+				PossibleLocations[possible_locations_array_index] = curr->p;
+			}
 			int *numReturnedLocs++;
 		}
 		//If Road
 		if ((curr->type == ROAD) && (road == true)) {
-			PossibleLocations[possible_locations_array_index] = curr->p;
+			//Check if can go by Road on this Segment
+			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, true, false, false)) {
+				PossibleLocations[possible_locations_array_index] = curr->p;
+			}
 			int *numReturnedLocs++;
 		}
 		//If Boat 
 		if ((curr->type == BOAT) && (boat == true)) {
-			PossibleLocations[possible_locations_array_index] = curr->p; 
+			//Check if can go by Boat on this Segment
+			if (HvFindConnectionSingleRound(hv, curr_player_location, curr->p, false, false, true)) {
+				PossibleLocations[possible_locations_array_index] = curr->p;
+			}
 			int *numReturnedLocs++;
 		}
 		curr = curr->next;
@@ -272,7 +282,7 @@ int minDistance(int dist[], bool vSet[]) {
     return min_index; 
 } 
 
-//Find the Whether Allowed to Travel Between Two Nodes for a Single Round
+//Find out Whether Allowed to Travel Between Two Nodes for a Single Round
 int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool road, bool rail, bool boat) {
 	ConnList curr = map->connections[start];
 	ConnList destination = map->connections[end]; 
@@ -302,7 +312,13 @@ int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool 
 			if (distanceRail == 3) {
 				ConnList first_middle_segment = map->connections[curr->p]; 
 				ConnList curr_second_middle_segment = map->connections[0]; 
-				
+				while (curr_second_middle_segment != NULL) {
+					if (curr_second_middle_segment == destination) {
+						numPossibleLocations++; 
+						break;
+					}
+					curr_second_middle_segment = curr_second_middle_segment->next; 
+				}
 			}
 		}
 		//If Sea
