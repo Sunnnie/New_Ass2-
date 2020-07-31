@@ -32,13 +32,17 @@ struct hunterView {
 
 HunterView HvNew(char *pastPlays, Message messages[])
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
 	HunterView new = malloc(sizeof(*new));
 	if (new == NULL) {
 		fprintf(stderr, "Couldn't allocate HunterView!\n");
 		exit(EXIT_FAILURE);
 	}
-
+     new->view = GvNew(pastPlays, messages);
+    new->encounter_Dracula = 0;
+    for(int i = 0; pastPlays[i] != '\0'; i++){
+        if(pastPlays[i] == 'V') new->encounter_Dracula = 1;
+        break;
+    }
 	return new;
 }
 
@@ -53,38 +57,32 @@ void HvFree(HunterView hv)
 
 Round HvGetRound(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	return GvGetRound(hv -> view);
 }
 
 Player HvGetPlayer(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return PLAYER_LORD_GODALMING;
+	return GvGetPlayer(hv -> view);
 }
 
 int HvGetScore(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	return GvGetScore(hv -> view);
 }
 
 int HvGetHealth(HunterView hv, Player player)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return 0;
+	return GvGetHealth(hv -> view, player);
 }
 
 PlaceId HvGetPlayerLocation(HunterView hv, Player player)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	return GvGetPlayerLocation(hv -> view, player);
 }
 
 PlaceId HvGetVampireLocation(HunterView hv)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	return NOWHERE;
+	return GvGetVampireLocation(hv -> view);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -92,8 +90,17 @@ PlaceId HvGetVampireLocation(HunterView hv)
 
 PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*round = 0;
+	// if the Dracula's location is known by hunter
+
+	for(int i = *round; i > 0; i--){
+		if(hv -> encounter_Dracula == 1){
+			PlaceId id = GvGetPlayerLocation(hv -> view, HvGetPlayer(hv));
+			return id;
+			break;
+		}
+	}
+	// if the Dracula's location is unknown
+
 	return NOWHERE;
 }
 
@@ -137,17 +144,31 @@ PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
 
 PlaceId *HvWhereCanIGo(HunterView hv, int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	Player player = HvGetPlayer(hv);
+	if(HvGetPlayerLocation(hv, player) == NOWHERE){
+	    *numReturnedLocs = 0;
+	    return NULL;
+	}
+	else{
+	    return GvGetReachable(hv -> view, player, HvGetRound(hv),
+                        HvGetPlayerLocation(hv, player), numReturnedLocs);
+	
+	}
 }
 
 PlaceId *HvWhereCanIGoByType(HunterView hv, bool road, bool rail,
                              bool boat, int *numReturnedLocs)
 {
-	// TODO: REPLACE THIS WITH YOUR OWN IMPLEMENTATION
-	*numReturnedLocs = 0;
-	return NULL;
+	Player player = HvGetPlayer(hv);
+	if(HvGetPlayerLocation(hv, player) == NOWHERE){
+	    *numReturnedLocs = 0;
+	    return NULL;
+	}
+	else{
+	    return GvGetReachableByType(hv -> view, player, HvGetRound(hv),
+                        HvGetPlayerLocation(hv, player), road, rail, boat, numReturnedLocs);
+	
+	}
 }
 
 PlaceId *HvWhereCanTheyGo(HunterView hv, Player player,
