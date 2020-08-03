@@ -19,6 +19,7 @@
 #include "HunterView.h"
 #include "Map.h"
 #include "Places.h"
+#include "utils.h"
 // add your own #includes here
 #include <limits.h>
 
@@ -28,6 +29,10 @@ struct hunterView {
 	GameView view;
 	int encounter_Dracula;
 };
+
+/*static PlaceId *hunterBfs(HunterView hv, Player hunter, PlaceId src,
+                          Round r);*/
+static Round playerNextRound(HunterView hv, Player player);
 
 ////////////////////////////////////////////////////////////////////////
 // Constructor/Destructor
@@ -119,41 +124,72 @@ PlaceId HvGetLastKnownDraculaLocation(HunterView hv, Round *round)
 PlaceId *HvGetShortestPathTo(HunterView hv, Player hunter, PlaceId dest,
                              int *pathLength)
 {
-    *pathLength = 0;
-	PlaceId current_place = HvGetPlayerLocation(hv, hunter);
-	Map view_map = GvGetMap(hv->view);
-	int vertices = MapNumPlaces(view_map);
-	//Using Dijkstra's Algorithm to find Single Source Shortest Path
-	//From Lecture Notes & Lab 5
-	//Distance Array
-	int dist[vertices];
-	bool vSet[vertices];
-
-	for (int i = 0; i < vertices; i++) {
-		dist[i] = INT_MAX;
-		vSet[i] = false;
+	Round r = playerNextRound(hv, hunter);
+	PlaceId src = HvGetPlayerLocation(hv, hunter);
+	PlaceId *pred = hunterBfs(hv, hunter, src, r);
+	
+	// One pass to get the path length
+	int dist = 0;
+	PlaceId curr = dest;
+	while (curr != src) {
+		dist++;
+		curr = pred[curr];
 	}
+	
+	PlaceId *path = malloc(dist * sizeof(PlaceId));
+	// Another pass to copy the path in
+	int i = dist - 1;
+	curr = dest;
+	while (curr != src) {
+		path[i] = curr;
+		curr = pred[curr];
+		i--;
+	}
+	
+	free(pred);
+	*pathLength = dist;
+	return path;
+}
 
-	dist[current_place] = 0;
-
-	for (int j = 0; j < (vertices - 1); j++) {
-		int min_distance_vertex = minDistance(dist, vSet, vertices); 
-
-		vSet[min_distance_vertex] = true;
-		*pathLength = *pathLength + 1;
+/**
+ * Performs a BFS for the given hunter starting at `src`, assuming the
+ * round is `r`. Returns a predecessor array.
+ */
+PlaceId *hunterBfs(HunterView hv, Player hunter, PlaceId src, Round r) {
+	PlaceId *pred = malloc(NUM_REAL_PLACES * sizeof(PlaceId));
+	placesFill(pred, NUM_REAL_PLACES, -1);
+	pred[src] = src;
+	
+	Queue q1 = newQueue(); // current round locations
+	Queue q2 = newQueue(); // next round locations
+	
+	QueueJoin(q1, src);
+	while (!(QueueIsEmpty(q1) && QueueIsEmpty(q2))) {
+		PlaceId curr = QueueLeave(q1);
+		int numReachable = 0;
+		PlaceId *reachable = GvGetReachable(hv->view, hunter, r, curr,
+		                                    &numReachable);
 		
-		for (int k = 0; k < vertices; k++) {
-			
-			/*if (!vSet[k] && view_map[min_distance_vertex][k] && dist[min_distance_vertex] != INT_MAX) {
-				if ((dist[min_distance_vertex] + view_map[min_distance_vertex][k]) < dist[k]) {
-					dist[j] = dist[min_distance_vertex] + view_map[min_distance_vertex][k]; 
-				}
-
-			}*/
-			
+		for (int i = 0; i < numReachable; i++) {
+			if (pred[reachable[i]] == -1) {
+				pred[reachable[i]] = curr;
+				QueueJoin(q2, reachable[i]);
+			}
+		}
+		free(reachable);
+		
+		// When we've exhausted the current round's locations, advance
+		// to the next round and swap the queues (so the next round's
+		// locations becomes the current round's locations)
+		if (QueueIsEmpty(q1)) {
+			Queue tmp = q1; q1 = q2; q2 = tmp; // swap queues
+			r++;
 		}
 	}
-	return NULL;
+	
+	dropQueue(q1);
+	dropQueue(q2);
+	return pred;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -387,4 +423,20 @@ int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool 
 		curr = curr->next;
 	}
 	return numPossibleLocations; 
+}
+
+////////////////////////////////////////////////////////////////////////
+// Helper functions
+
+/**
+ * Gets the round number of the player's next move
+ */
+static Round playerNextRound(HunterView hv, Player player) {
+	return HvGetRound(hv) + (player < HvGetPlayer(hv) ? 1 : 0);
+}
+
+void placesFill(PlaceId *places, int numPlaces, PlaceId place) {
+	for (int i = 0; i < numPlaces; i++) {
+		places[i] = place;
+	}
 }

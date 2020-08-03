@@ -15,6 +15,16 @@
 
 void decideDraculaMove(DraculaView dv)
 {
-	// TODO: Replace this with something better!
+	/*
+	//Finding Where Dracula can Go
+	int *numDraculaPossibleLocs = 0; 
+	PlaceId *DraculaPossibleLocs = DvGetValidMoves(dv, *numDraculaPossibleLocs);
+
+	//Finding Where the Hunters Can Go
+	int *numHunterPossibleLocs = 0;
+	PlaceId *HunterPossibleLocs = DvWhereCanTheyGo(dv, currentHunter, *numHunterPossibleLocs);
+	
+	//Executing the Move
+	*/
 	registerBestPlay("CD", "Mwahahahaha");
 }

@@ -21,6 +21,8 @@
 #include "Game.h"
 #include "Places.h"
 // add your own #includes here
+#include "Queue.h"
+#include "utils.h"
 
 typedef struct hunterView *HunterView;
 
@@ -214,7 +216,13 @@ PlaceId *HvWhereCanTheyGoByType(HunterView hv, Player player,
 
 ////////////////////////////////////////////////////////////////////////
 // Your own interface functions
-
+PlaceId *hunterBfs(HunterView hv, Player hunter, PlaceId src, Round r);
+PlaceId *HvFindPossibleLocations(HunterView hv, Player player,
+								   bool road, bool rail, bool boat,
+								   int *numReturnedLocs);
+int HvFindConnectionSingleRound(HunterView hv, PlaceId start, PlaceId end, bool road, bool rail, bool boat);
+//static Round playerNextRound(HunterView hv, Player player);
+void placesFill(PlaceId *places, int numPlaces, PlaceId place);
 // TODO
 
 #endif // !defined (FOD__HUNTER_VIEW_H_)
