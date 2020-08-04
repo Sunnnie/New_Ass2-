@@ -38,9 +38,11 @@ void decideDraculaMove(DraculaView dv)
 			PlaceId *DraculaPossibleLocs = DvWhereCanIGo(dv, numDraculaPossibleLocs);
 			for (int k=0; k < *numDraculaPossibleLocs; k++) {
 				if (DraculaPossibleLocs[k] == HunterPossibleLocs[j]) {
-					PlaceId suggestedLocation = DraculaPossibleLocs[k];
-					submittedLocs++;
-					registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+					if (*numDraculaPossibleLocs > k) {
+						PlaceId suggestedLocation = DraculaPossibleLocs[k];
+						submittedLocs++;
+						registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+					}
 				}
 			}
 		}
@@ -52,8 +54,30 @@ void decideDraculaMove(DraculaView dv)
 	PlaceId *DraculaPossibleLocs = DvGetValidMoves(dv, numDraculaPossibleLocs);
 	*/
 	//AVOIDING THE SEA
+	*numHunterPossibleLocs = 0;
+	*numDraculaPossibleLocs = 0; 
+	for (int i=0; i<=4; i++) {
+		*numHunterPossibleLocs = 0;
+		PlaceId *HunterPossibleLocs = DvWhereCanTheyGo(dv, i, numHunterPossibleLocs);
+		for (int j= 0; j < *numHunterPossibleLocs; j++) {
+			*numDraculaPossibleLocs = 0; 
+			PlaceId *DraculaPossibleLocs = DvWhereCanIGoByType(dv, true, false, numDraculaPossibleLocs);
+			for (int k=0; k < *numDraculaPossibleLocs; k++) {
+				if (DraculaPossibleLocs[k] != HunterPossibleLocs[j]) {
+					if (*numDraculaPossibleLocs > k) {
+						PlaceId suggestedLocation = DraculaPossibleLocs[k];
+						registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+						submittedLocs++;
+					}
+				}
+			}
+		}
+	}
 
 	//PLACING VAMPIRES
+	if (DvGetRound(dv) >= 10) {
+		registerBestPlay(placeIdToAbbrev(HIDE), "Mwahahahaha");
+	}
 
 	//RUNNING AWAY FROM HUNTERS
 	*numHunterPossibleLocs = 0;
@@ -66,9 +90,11 @@ void decideDraculaMove(DraculaView dv)
 			PlaceId *DraculaPossibleLocs = DvWhereCanIGo(dv, numDraculaPossibleLocs);
 			for (int k=0; k < *numDraculaPossibleLocs; k++) {
 				if (DraculaPossibleLocs[k] != HunterPossibleLocs[j]) {
-					PlaceId suggestedLocation = DraculaPossibleLocs[k];
-					registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
-					submittedLocs++;
+					if (*numDraculaPossibleLocs > k) {
+						PlaceId suggestedLocation = DraculaPossibleLocs[k];
+						registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+						submittedLocs++;
+					}
 				}
 			}
 		}
@@ -83,7 +109,7 @@ void decideDraculaMove(DraculaView dv)
 	if (submittedLocs == 0) {
 		*numDraculaPossibleLocs = 0; 
 		PlaceId *DraculaPossibleLocs = DvWhereCanIGo(dv, numDraculaPossibleLocs);
-		if (*numDraculaPossibleLocs != 0) {
+		if (*numDraculaPossibleLocs >= 1) {
 			PlaceId suggestedLoc = DraculaPossibleLocs[0];
 			registerBestPlay(placeIdToAbbrev(suggestedLoc), "Mwahahahaha"); 	
 		} else {
