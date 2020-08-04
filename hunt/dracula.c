@@ -24,6 +24,7 @@ void decideDraculaMove(DraculaView dv)
 	
 	//Executing the Move
 	*/
+	int submittedLocs = 0;
 
 	//ATTACKING HUNTERS
 	//Finding Where the Hunters Can Go
@@ -38,6 +39,7 @@ void decideDraculaMove(DraculaView dv)
 			for (int k=0; k < *numDraculaPossibleLocs; k++) {
 				if (DraculaPossibleLocs[k] == HunterPossibleLocs[j]) {
 					PlaceId suggestedLocation = DraculaPossibleLocs[k];
+					submittedLocs++;
 					registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
 				}
 			}
@@ -66,12 +68,26 @@ void decideDraculaMove(DraculaView dv)
 				if (DraculaPossibleLocs[k] != HunterPossibleLocs[j]) {
 					PlaceId suggestedLocation = DraculaPossibleLocs[k];
 					registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+					submittedLocs++;
 				}
 			}
 		}
 	}
 	//RECOVER HEALTH AT CASTLE DRACULA
-	if (DvGetHealth(dv, PLAYER_DRACULA) <= 30) {
+	if (DvGetHealth(dv, PLAYER_DRACULA) <= 20) {
 		registerBestPlay("CD", "Mwahahahaha");
+		submittedLocs++;
+	}
+
+	//PROTECTION FEATURE (IF NO SUBMITTED LOCATIONS)
+	if (submittedLocs == 0) {
+		*numDraculaPossibleLocs = 0; 
+		PlaceId *DraculaPossibleLocs = DvWhereCanIGo(dv, numDraculaPossibleLocs);
+		if (*numDraculaPossibleLocs != 0) {
+			PlaceId suggestedLoc = DraculaPossibleLocs[0];
+			registerBestPlay(placeIdToAbbrev(suggestedLoc), "Mwahahahaha"); 	
+		} else {
+			registerBestPlay(placeIdToAbbrev(HIDE), "Mwahahahaha"); 
+		}
 	}
 }
