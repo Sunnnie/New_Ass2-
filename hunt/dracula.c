@@ -74,6 +74,7 @@ void decideDraculaMove(DraculaView dv)
 	//PLACING VAMPIRES
 	if (DvGetRound(dv) >= 10) {
 		registerBestPlay(placeIdToAbbrev(HIDE), "Mwahahahaha");
+		submittedLocs++;
 	}
 
 	
@@ -133,9 +134,10 @@ void decideDraculaMove(DraculaView dv)
 		if (possible == 0) {
 			PlaceId ToGo = D_locations[0];
 			registerBestPlay(placeIdToAbbrev(ToGo), "NoWhereToHide"); 
+			submittedLocs++;
 		}
 	}
-	
+
 	//RECOVER HEALTH AT CASTLE DRACULA
 	if (DvGetHealth(dv, PLAYER_DRACULA) <= 20) {
 		registerBestPlay("CD", "Mwahahahaha");
