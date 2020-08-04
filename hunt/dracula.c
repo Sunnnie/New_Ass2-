@@ -20,11 +20,58 @@ void decideDraculaMove(DraculaView dv)
 	int *numDraculaPossibleLocs = 0; 
 	PlaceId *DraculaPossibleLocs = DvGetValidMoves(dv, *numDraculaPossibleLocs);
 
-	//Finding Where the Hunters Can Go
-	int *numHunterPossibleLocs = 0;
-	PlaceId *HunterPossibleLocs = DvWhereCanTheyGo(dv, currentHunter, *numHunterPossibleLocs);
+	
 	
 	//Executing the Move
 	*/
-	registerBestPlay("CD", "Mwahahahaha");
+
+	//ATTACKING HUNTERS
+	//Finding Where the Hunters Can Go
+	int *numHunterPossibleLocs = 0;
+	int *numDraculaPossibleLocs = 0; 
+	for (int i=0; i<=4; i++) {
+		*numHunterPossibleLocs = 0;
+		PlaceId *HunterPossibleLocs = DvWhereCanTheyGo(dv, i, numHunterPossibleLocs);
+		for (int j= 0; j < *numHunterPossibleLocs; j++) {
+			*numDraculaPossibleLocs = 0; 
+			PlaceId *DraculaPossibleLocs = DvWhereCanIGo(dv, numDraculaPossibleLocs);
+			for (int k=0; k < *numDraculaPossibleLocs; k++) {
+				if (DraculaPossibleLocs[k] == HunterPossibleLocs[j]) {
+					PlaceId suggestedLocation = DraculaPossibleLocs[k];
+					registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+				}
+			}
+		}
+	}
+
+	//Where Dracula Can Go
+	/*
+	int *numDraculaPossibleLocs = 0; 
+	PlaceId *DraculaPossibleLocs = DvGetValidMoves(dv, numDraculaPossibleLocs);
+	*/
+	//AVOIDING THE SEA
+
+	//PLACING VAMPIRES
+
+	//RUNNING AWAY FROM HUNTERS
+	*numHunterPossibleLocs = 0;
+	*numDraculaPossibleLocs = 0; 
+	for (int i=0; i<=4; i++) {
+		*numHunterPossibleLocs = 0;
+		PlaceId *HunterPossibleLocs = DvWhereCanTheyGo(dv, i, numHunterPossibleLocs);
+		for (int j= 0; j < *numHunterPossibleLocs; j++) {
+			*numDraculaPossibleLocs = 0; 
+			PlaceId *DraculaPossibleLocs = DvWhereCanIGo(dv, numDraculaPossibleLocs);
+			for (int k=0; k < *numDraculaPossibleLocs; k++) {
+				if (DraculaPossibleLocs[k] != HunterPossibleLocs[j]) {
+					PlaceId suggestedLocation = DraculaPossibleLocs[k];
+					registerBestPlay(placeIdToAbbrev(suggestedLocation), "Mwahahaha"); 
+				}
+			}
+		}
+	}
+	//RECOVER HEALTH AT CASTLE DRACULA
+	if (DvGetHealth(dv, PLAYER_DRACULA) <= 30) {
+		registerBestPlay("CD", "Mwahahahaha");
+	}
 }
