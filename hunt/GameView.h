@@ -263,9 +263,12 @@ PlaceId getPlaceFromMove(char *move);
 Player playerFromChar(char c);
 void addPlace(PlaceId *places, int *size, PlaceId place);
 void removePlace(PlaceId *places, int *size, PlaceId place);
-PlaceId getLocationFromMove(GameView gv, PlaceId move, int trailLocation);
+int containsPlace(PlaceId *places, int size, PlaceId place);
 bool validTransport(TransportType type, bool road, bool rail, bool boat);
 int maxRailDist(Player player, Round round);
+int roundsTillVampMatures(Round cur, PlaceId vampLoc);
+
+PlaceId getLocationFromMove(GameView gv, PlaceId move, int trailLocation);
 PlaceId *trail_location(GameView gv); 
 Map GvGetMap(GameView gv);
 

@@ -31,6 +31,7 @@
 #define PLACE_ABBREV_SIZE 2
 #define START_PLAY_ACTION 3
 #define MAX_TOTAL_TRAPS 6
+#define VAMP_PLACE_MOD 13
 
 // TODO: ADD YOUR OWN STRUCTS HERE
 
@@ -573,4 +574,23 @@ PlaceId *trail_location(GameView gv)
 
 Map GvGetMap(GameView gv) {
 	return(gv->map);
+}
+
+// Returns index of place in array. -1 if not found.
+int containsPlace(PlaceId *places, int size, PlaceId place) {
+	for (int i = 0; i < size; i++) {
+		if (places[i] == place)
+			return i;
+	}
+	return -1;
+}
+
+// Returns -1 if no vamp
+int roundsTillVampMatures(Round cur, PlaceId vampLoc) {
+	if (vampLoc == NOWHERE) {
+		return -1;
+	}
+
+	int howLongAgo = cur % VAMP_PLACE_MOD;
+	return TRAIL_SIZE - howLongAgo + 1;
 }

@@ -23,6 +23,7 @@
 // add your own #includes here
 #include "Queue.h"
 #include "utils.h"
+#include "GameView.h"
 
 typedef struct hunterView *HunterView;
 
