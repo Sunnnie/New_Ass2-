@@ -12,6 +12,7 @@
 #include "dracula.h"
 #include "DraculaView.h"
 #include "Game.h"
+#include <time.h>
 
 void decideDraculaMove(DraculaView dv)
 {
@@ -132,8 +133,11 @@ void decideDraculaMove(DraculaView dv)
 		}
 
 		if (possible == 0) {
-			PlaceId ToGo = D_locations[0];
-			registerBestPlay(placeIdToAbbrev(ToGo), "NoWhereToHide"); 
+			time_t t;
+			srand((unsigned) time(&t));
+ 			int togo = rand() % vaild_locs; 
+ 			PlaceId ToGo = D_locations[togo];
+ 			registerBestPlay(placeIdToAbbrev(ToGo), "NoWhereToHide");
 			submittedLocs++;
 		}
 	}
